@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Apr 16 17:31:57 2023
-
-@author: ahmad
-"""
 
 import numpy as np
 from PIL import Image
