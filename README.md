@@ -37,5 +37,6 @@ The output includes the following information for each image:
 
 * PNG compression ratio, MSE, and PSNR
 * JPEG compression ratio, MSE, and PSNR
+* WebP compression ratio, MSE, and PSNR
 
 
