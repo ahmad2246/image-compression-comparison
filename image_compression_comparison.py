@@ -3,34 +3,90 @@
 import numpy as np
 from PIL import Image
 from skimage import metrics
-import time
 import os
-import shutil
 
 images_names_list = []
 images_names_list_without_ext = []
 images_names_list_png= []
 images_names_list_jpg= []
 images_names_list_webp= []
+compression_data_list = [] # will contain dict similar to "compression_data_dict"
 
-def ShowOutputs(images_names_list_without_ext, png_cr, png_mse, png_psnr, jpg_cr, jpg_mse, jpg_psnr, webp_cr, webp_mse, webp_psnr ):
-    print("===============")
-    print("PNG compression for the", images_names_list_without_ext[i], "image:\n")
-    print('Compression Ratio:', png_cr)
-    print('mse', png_mse)
-    print('PSNR:', png_psnr)
-    print("-----------------")
-    print("JPEG compression for the", images_names_list_without_ext[i], "image:\n")
-    print('Compression Ratio:', jpg_cr)
-    print('mse', jpg_mse)
-    print('PSNR:', jpg_psnr)
-    print("-----------------")
-    print("WebP compression for the", images_names_list_without_ext[i], "image:\n")
-    print('Compression Ratio:', webp_cr)
-    print('mse', webp_mse)
-    print('PSNR:', webp_psnr)
-    print("===============")
+
+
+def ShowOutputs(compression_data_list, average_compression_data_list, images_names_list_without_ext):
     
+    for i in range(len(compression_data_list)):
+        
+        print("image quality metrics for the", images_names_list_without_ext[i],"image:\n")
+        print("-----------------")
+        print("PNG compression:\n")
+        print('Compression Ratio:', compression_data_list[i]["png"][0])
+        print('mse', compression_data_list[i]["png"][1])
+        print('PSNR:', compression_data_list[i]["png"][2])
+        print("-----------------")
+        print("JPEG compression:\n")
+        print('Compression Ratio:', compression_data_list[i]["jpg"][0])
+        print('mse', compression_data_list[i]["jpg"][1])
+        print('PSNR:', compression_data_list[i]["jpg"][2])
+        print("-----------------")
+        print("WebP compression:\n")
+        print('Compression Ratio:', compression_data_list[i]["webp"][0])
+        print('mse', compression_data_list[i]["webp"][1])
+        print('PSNR:', compression_data_list[i]["webp"][2])
+        print("====================================================")
+        print("====================================================")
+
+
+    print("==============Average Quality Metrics===============")
+    print("====================================================")
+    print("====================================================")
+    print("PNG compression:\n")
+    print("cr =", average_compression_data_list[0]["png"])
+    print("mse =", average_compression_data_list[1]["png"])
+    print("psnr =", average_compression_data_list[2]["png"])
+    print("-----------------")
+    print("JPEG compression:\n")
+    print("cr =", average_compression_data_list[0]["jpg"])
+    print("mse =", average_compression_data_list[1]["jpg"])
+    print("psnr =", average_compression_data_list[2]["jpg"])
+    print("-----------------")
+    print("WebP compression:\n")
+    print("cr =", average_compression_data_list[0]["webp"])
+    print("mse =", average_compression_data_list[1]["webp"])
+    print("psnr =", average_compression_data_list[2]["webp"])
+    print("-----------------")
+    
+
+def AverageOutputs(compression_data_list):
+    
+    average_cr = {"png": 0, "jpg": 0, "webp": 0}
+    average_mse = {"png": 0, "jpg": 0, "webp": 0}
+    average_psnr = {"png": 0, "jpg": 0, "webp": 0}
+    
+    for i in range(len(compression_data_list)):
+        
+        average_cr["png"] += compression_data_list[i]["png"][0]
+        average_cr["jpg"] += compression_data_list[i]["jpg"][0]
+        average_cr["webp"] += compression_data_list[i]["webp"][0]
+        
+        average_mse["png"] += compression_data_list[i]["png"][1]
+        average_mse["jpg"] += compression_data_list[i]["jpg"][1]
+        average_mse["webp"] += compression_data_list[i]["webp"][1]
+        
+        average_psnr["png"] += compression_data_list[i]["png"][2]
+        average_psnr["jpg"] += compression_data_list[i]["jpg"][2]
+        average_psnr["webp"] += compression_data_list[i]["webp"][2]
+    
+    average_cr = {k: v /len(compression_data_list) for k, v in average_cr.items()}
+    average_mse = {k: v /len(compression_data_list) for k, v in average_mse.items()}
+    average_psnr = {k: v /len(compression_data_list) for k, v in average_psnr.items()}
+    
+    average_compression_data_list = [average_cr, average_mse, average_psnr]
+    
+    return average_compression_data_list
+
+
 
 if not os.path.exists('compressed_images'):
     os.mkdir('compressed_images')
@@ -59,6 +115,8 @@ for i in range(number_of_images):
 # image quality metrics
 #---------------------
 for i in range(number_of_images):
+    
+    compression_data_dict = {"png": [0,0,0], "jpg": [0,0,0], "webp": [0,0,0]}
     
     # get the size of the images
     refference_size = os.path.getsize(images_names_list[i])
@@ -92,6 +150,16 @@ for i in range(number_of_images):
     png_psnr = metrics.peak_signal_noise_ratio(refference_img_array, png_img_array, data_range=None)
     jpg_psnr = metrics.peak_signal_noise_ratio(refference_img_array, jpg_img_array, data_range=None)
     webp_psnr = metrics.peak_signal_noise_ratio(refference_img_array, webp_img_array, data_range=None)
+    
+    compression_data_dict["png"][:3] = [png_cr, png_mse, png_psnr]
+    compression_data_dict["jpg"][:3] = [jpg_cr, jpg_mse, jpg_psnr]
+    compression_data_dict["webp"][:3] = [webp_cr, webp_mse, webp_psnr]
+    
+    compression_data_list.append(compression_data_dict)
+    
 
-    # Showing Output
-    ShowOutputs(images_names_list_without_ext, png_cr, png_mse, png_psnr, jpg_cr, jpg_mse, jpg_psnr, webp_cr, webp_mse, webp_psnr )
+# Calculate Average
+average_compression_data_list = AverageOutputs(compression_data_list)
+
+# Showing Output
+ShowOutputs(compression_data_list, average_compression_data_list, images_names_list_without_ext)

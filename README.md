@@ -33,10 +33,17 @@ pip install numpy Pillow scikit-image
 
 ## Output
 
-The output includes the following information for each image:
+The output includes the following information:
 
-* PNG compression ratio, MSE, and PSNR
+1. it will include for each image
+
+* PNG compression ratio, MSE, and PSNR 
 * JPEG compression ratio, MSE, and PSNR
 * WebP compression ratio, MSE, and PSNR
 
 
+2. it will include the average 
+
+* PNG compression ratio, MSE, and PSNR 
+* JPEG compression ratio, MSE, and PSNR
+* WebP compression ratio, MSE, and PSNR
